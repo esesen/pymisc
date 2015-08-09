@@ -1,6 +1,7 @@
 from misc.sequences import ArithmeticSequence
 
-import pytest
+from itertools import islice
+
 from hypothesis import given, assume
 from hypothesis import strategies as st
 
@@ -32,17 +33,11 @@ def test_arithmetic_sequence_equality(sequence, n):
     assert sequence != ArithmeticSequence(sequence[0], sequence.difference + n)
 
 
-@given(st.integers(), st.integers())
-def test_arithmetic_sequence_iteration(first, difference):
-    s = ArithmeticSequence(first, difference)
-
-    it = iter(s)
-    previous = next(it)
-
-    for i in range(50):
-        current = next(it)
-        assert current - previous == difference, i
-        previous = current
+@given(arithmetic_sequences())
+def test_arithmetic_sequence_iteration(sequence):
+    n_elems = 50
+    assert list(lambda i: sequence[i], map(range(n_elems))) == \
+        list(islice(sequence, n_elems))
 
 
 @given(arithmetic_sequences())
