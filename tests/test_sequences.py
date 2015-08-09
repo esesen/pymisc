@@ -1,6 +1,11 @@
 from misc.sequences import ArithmeticSequence
 
 from itertools import islice
+try:
+    from itertools import imap as map
+except ImportError:
+    # assume python 3
+    pass
 
 from hypothesis import given, assume
 from hypothesis import strategies as st
@@ -27,8 +32,10 @@ def test_arithmetic_sequence_equality(sequence, n):
     assume(n != 0)
 
     assert sequence == ArithmeticSequence(sequence[0], sequence.difference)
-    assert list(islice(sequence, 1000)) == list(islice(
-            ArithmeticSequence(sequence[0], sequence.difference), 1000))
+    assert list(islice(sequence, 1000)) == \
+        list(islice(ArithmeticSequence(sequence[0],
+                                       sequence.difference),
+                    1000))
     assert sequence != ArithmeticSequence(sequence[0] + n, sequence.difference)
     assert sequence != ArithmeticSequence(sequence[0], sequence.difference + n)
 
@@ -36,7 +43,7 @@ def test_arithmetic_sequence_equality(sequence, n):
 @given(arithmetic_sequences())
 def test_arithmetic_sequence_iteration(sequence):
     n_elems = 50
-    assert list(lambda i: sequence[i], map(range(n_elems))) == \
+    assert list(map(lambda i: sequence[i], range(n_elems))) == \
         list(islice(sequence, n_elems))
 
 
@@ -54,5 +61,5 @@ def test_arithmetic_sequence_trivial_slicing(s):
 def test_arithmetic_sequence_positive_step_slicing(sequence, start, step):
     from itertools import islice
 
-    assert list(islice(sequence[start::step], 10)) == list(
-            islice(islice(sequence, start, None, step), 10))
+    assert list(islice(sequence[start::step], 10)) == \
+        list(islice(islice(sequence, start, None, step), 10))
